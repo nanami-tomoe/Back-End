@@ -3,6 +3,7 @@ package edu.allinone.sugang.controller;
 import edu.allinone.sugang.dto.global.ResponseDTO;
 import edu.allinone.sugang.dto.request.EnrollmentDTO;
 import edu.allinone.sugang.dto.response.EnrollmentInfoDTO;
+import edu.allinone.sugang.dto.response.EnrollmentResDTO;
 import edu.allinone.sugang.dto.response.LectureSummaryDTO;
 import edu.allinone.sugang.dto.response.LectureTimeDTO;
 import edu.allinone.sugang.repository.LectureRepository;
@@ -48,12 +49,12 @@ public class EnrollmentController {
     @PostMapping("/by-code")
     @ResponseStatus(HttpStatus.CREATED) // 상태를 201 Created로 설정
     public ResponseDTO<?> enrollByCode(@RequestParam Integer studentId, @RequestParam String lectureNumber) {
-        EnrollmentDTO enrollmentDTO;
+        EnrollmentResDTO enrollmentDTO;
         try {
             Integer lectureId = lectureRepository.findByLectureNumber(lectureNumber)
                     .orElseThrow(() -> new IllegalArgumentException("해당 강의가 존재하지 않습니다.")).getId();
             enrollmentService.enroll(studentId, lectureId);
-            enrollmentDTO = new EnrollmentDTO(studentId, lectureId);
+            enrollmentDTO = new EnrollmentResDTO(studentId, lectureId);
             return new ResponseDTO<>(HttpStatus.CREATED.value(), "신청 완료", enrollmentDTO);
         } catch (IllegalArgumentException e) {
             return new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), e.getMessage());
@@ -69,7 +70,7 @@ public class EnrollmentController {
     public ResponseDTO<?> cancel(@PathVariable Integer studentId, @PathVariable Integer lectureId) {
         try {
             enrollmentService.cancel(studentId, lectureId);
-            EnrollmentDTO requestDto = new EnrollmentDTO(studentId, lectureId);
+            EnrollmentResDTO requestDto = new EnrollmentResDTO(studentId, lectureId);
             return new ResponseDTO<>(HttpStatus.OK.value(), "취소 완료", requestDto);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
